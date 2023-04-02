@@ -5,7 +5,7 @@ import { useCallback, useState } from "react";
 import usePosts, { IPostJSPlaceHoler } from "../../hooks/usePosts";
 
 const STEP_ITEMS = 2;
-const MAX_PAGE = 10;
+// const MAX_PAGE = 10;
 
 const InfiniteLoadDropdown = () => {
   const [pageNum, setPageNum] = useState(1)
@@ -13,13 +13,16 @@ const InfiniteLoadDropdown = () => {
   const {
     isLoading,
     results,
+    hasNextPage
   } = usePosts(pageNum);
 
   const [selectedPost, setSelectedPost] = useState<IPostJSPlaceHoler | null>(null);
 
   const handleLazyLoad = useCallback((event: VirtualScrollerLazyEvent) => {
     const { first, last } = event;
-    if (pageNum > MAX_PAGE) return;
+    // With MAX_PAGE
+    // if (pageNum > MAX_PAGE) return;
+    if (!hasNextPage) return;
     if (biggestLast <= last) {
       setBiggestLast(last as number)
     } else {
@@ -28,7 +31,7 @@ const InfiniteLoadDropdown = () => {
     if (first > 0 && last > STEP_ITEMS && ((last as number - (first as number)) === STEP_ITEMS)) {
       setPageNum(page => page + 1);
     }
-  }, [biggestLast])
+  }, [biggestLast, hasNextPage])
 
 
   const selectedCountryTemplate = (option: IPostJSPlaceHoler, props: DropdownProps) => {
@@ -77,7 +80,8 @@ const InfiniteLoadDropdown = () => {
           step: STEP_ITEMS,
           loading: isLoading,
           loadingTemplate,
-          showLoader: pageNum <= MAX_PAGE ? true : false,
+          // showLoader: pageNum <= MAX_PAGE ? true : false,
+          showLoader: hasNextPage ? true : false,
           delay: 150,
         }}
       />
